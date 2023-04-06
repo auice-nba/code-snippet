@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Image Upload with Preview and Resize</title>
+  </head>
+  <body>
+    <h1>Image Upload with Preview and Resize</h1>
+    <input type="file" id="fileInput">
+    <div id="preview"></div>
+
+    <script>
+      const fileInput = document.getElementById('fileInput');
+      const preview = document.getElementById('preview');
+
+      fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.addEventListener('load', (event) => {
+          const image = new Image();
+          image.src = event.target.result;
+
+          image.addEventListener('load', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const maxDimension = 500;
+            let width = image.width;
+            let height = image.height;
+
+            if (width > height && width > maxDimension) {
+              height *= maxDimension / width;
+              width = maxDimension;
+            } else if (height > maxDimension) {
+              width *= maxDimension / height;
+              height = maxDimension;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.drawImage(image, 0, 0, width, height);
+            const resizedImage = canvas.toDataURL(file.type);
+
+            const previewImage = new Image();
+            previewImage.src = resizedImage;
+            preview.innerHTML = '';
+            preview.appendChild(previewImage);
+          });
+
+        });
+
+        reader.readAsDataURL(file);
+      });
+    </script>
+  </body>
+</html>
